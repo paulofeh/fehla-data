@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto px-4 py-16">
+
+    <h1 class="text-5xl font-bold">Projetos</h1>
+
+    <div class="card lg:card-side bg-base-100 shadow-xl my-8">
+        <figure><img src="{{ url_for('static', filename='images/lupa.avif') }}" alt="lupa(ESG)"/></figure>
+        <div class="card-body">
+        <h2 class="card-title">lupa(ESG)</h2>
+        <p>Projeto que monitora as políticas de sustentabilidade de empresas brasileiras.</p>
+        <p>Desenvolvido como projeto final da certificação em "Jornalismo de dados e automação" do <strong>Master em Jornalismo de Dados, Automação e Data Storytelling do Insper.</strong></p>
+        <p class="italic">Por Paulo Fehlauer.</p>
+        <div class="card-actions justify-end">
+            <a class="btn btn-primary" href="https://lupa-esg.onrender.com" target="_blank">Acessar</a>
+        </div>
+        </div>
+    </div>
+
+    <div class="card lg:card-side bg-base-100 shadow-xl my-8">
+        <figure><img src="{{ url_for('static', filename='images/agua.avif') }}" alt="lupa(ESG)"/></figure>
+        <div class="card-body">
+        <h2 class="card-title">Água invisível</h2>
+        <p>Reportagem que discute a pegada hídrica da agricultura brasileira.</p>
+        <p>Desenvolvida como projeto final da disciplina "Análise Exploratória de Dados II" do <strong>Master em Jornalismo de Dados, Automação e Data Storytelling do Insper.</strong></p>
+        <p class="italic">Por Cindy Damasceno, Nicole Lacerda, Paulo Fehlauer e Rute Damascena.</p>
+        <div class="card-actions justify-end">
+            <a class="btn btn-primary" href="https://aguainvisivel.fehla.xyz/" target="_blank">Acessar</a>
+        </div>
+        </div>
+    </div>
+
+    <div class="card lg:card-side bg-base-100 shadow-xl my-8">
+        <figure><img src="{{ url_for('static', filename='images/partos.webp') }}" alt="lupa(ESG)"/></figure>
+        <div class="card-body">
+        <h2 class="card-title">A dor do vazio</h2>
+        <p>Reportagem que apresenta um panorama sobre a violência obstétrica no Brasil.</p>
+        <p>Desenvolvida como projeto final da disciplina "Análise Exploratória de Dados I" do <strong>Master em Jornalismo de Dados, Automação e Data Storytelling do Insper.</strong></p>
+        <p class="italic">Por Gabriela Bertolo, Melissa Duarte, Michelly Neris, Nicole Lacerda e Paulo Fehlauer.</p>
+        <div class="card-actions justify-end">
+            <a class="btn btn-primary" href="https://medium.com/@mjdinsper2023/a-dor-do-vazio-7e65f23df958" target="_blank">Acessar</a>
+        </div>
+        </div>
+    </div>
+
+</div> 
+
+{% endblock %}

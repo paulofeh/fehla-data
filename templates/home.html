@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="hero min-h-screen max-w-4xl mx-auto px-4 py-8">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+        <img src="{{ url_for('static', filename='images/retrato.avif') }}" class="max-w-xs rounded-lg shadow-2xl" />
+        <div>
+            <h1 class="text-5xl font-bold">Jornalismo de Dados e Automação</h1>
+            <p class="py-6">Conheça o portfolio de projetos em Dados e Automação do jornalista e desenvolvedor Paulo Fehlauer.</p>
+            <a class="btn btn-primary" href="/projetos">Acesse</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
