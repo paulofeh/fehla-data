@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto px-4 py-16">
+
+    <h1 class="text-5xl font-bold">Imóveis Caixa</h1>
+    <p class="py-6">Monitora e organiza dados obtidos do portal de venda de imóveis da Caixa Econômica Federal. Desenvolvido como projeto final da disciplina "Algoritmos de automação" do <strong>Master em Jornalismo de Dados, Automação e Data Storytelling do Insper.</strong></p>
+    <p class="py-6">Selecione uma unidade da federação para ver um resumo dos dados disponíveis:</p>
+
+    <select id="seletor-uf" class="select select-bordered w-full max-w-xs">
+        <option disabled selected>Selecione uma UF</option>
+        {% for uf in estados %}
+        <option>{{ uf }}</option>
+        {% endfor %}
+      </select>
+
+      <div id="resultado"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $('#seletor-uf').change(function() {
+        var ufSelecionada = $(this).val();
+        $.ajax({
+            url: '/buscar_dados',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({'uf': ufSelecionada}),
+            success: function(response) {
+                $('#resultado').html('<p>Dados para ' + response.uf + ': ' + response.dados.join(', ') + '</p>');
+            }
+        });
+    });
+</script>
+{% endblock %}
