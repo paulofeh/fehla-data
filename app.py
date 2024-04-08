@@ -1,5 +1,5 @@
 # Bibliotecas e configurações
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, request, redirect, url_for
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
@@ -21,6 +21,36 @@ planilha = api.open_by_key(sheets_api)
 # Variáveis a serem passadas para os templates
 estados = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
 
+# Dicionário de estados
+estados_dict = {
+    'AC': 'Acre',
+    'AL': 'Alagoas',
+    'AM': 'Amazonas',
+    'AP': 'Amapá',
+    'BA': 'Bahia',
+    'CE': 'Ceará',
+    'DF': 'Distrito Federal',
+    'ES': 'Espírito Santo',
+    'GO': 'Goiás',
+    'MA': 'Maranhão',
+    'MG': 'Minas Gerais',
+    'MS': 'Mato Grosso do Sul',
+    'MT': 'Mato Grosso',
+    'PA': 'Pará',
+    'PB': 'Paraíba',
+    'PE': 'Pernambuco',
+    'PI': 'Piauí',
+    'PR': 'Paraná',
+    'RJ': 'Rio de Janeiro',
+    'RN': 'Rio Grande do Norte',
+    'RO': 'Rondônia',
+    'RR': 'Roraima',
+    'RS': 'Rio Grande do Sul',
+    'SC': 'Santa Catarina',
+    'SE': 'Sergipe',
+    'SP': 'São Paulo',
+    'TO': 'Tocantins'
+}
 
 # Definições e rotas do Flask
 app = Flask(__name__)
@@ -46,25 +76,27 @@ def bio():
 
 @app.route("/imoveis")
 def imoveis():
-    return render_template("imoveis.html", estados=estados)
+    return render_template("imoveis.html", estados=estados_dict.keys())
 
-@app.route('/buscar_dados', methods=['POST'])
-def buscar_dados():
-    uf_selecionada = request.json['uf']  
+@app.route("/mostrar_imoveis", methods=['POST'])
+def mostrar_imoveis():
+    uf_selecionada = request.form.get('uf')
+    return redirect(url_for('mostrar_dados_uf', uf=uf_selecionada))
 
-    # Acessa a planilha
-    sheet = planilha.worksheet(uf_selecionada)
+@app.route("/imoveis/<uf>")
+def mostrar_dados_uf(uf):
 
-    # Obtenha todos os valores da planilha
-    valores = sheet.get_all_values()
+    # Aqui você pode acessar a planilha e passar os dados para o template
+    sheet = planilha.worksheet(uf)
+    dados = sheet.get_all_values()
+    df = pd.DataFrame(dados[1:], columns=dados[0])
 
-    # Conte o número de registros (desconsiderando a linha de cabeçalho)
-    numero_registros = len(valores) - 1  # Desconte 1 para a linha de cabeçalho, se aplicável
+    df['Valor_Avaliacao'] = df['Valor_Avaliacao'].str.replace(',', '.').astype(float)
+    df['Preco'] = df['Preco'].str.replace(',', '.').astype(float)
+    menor_valor = df['Preco'].astype(float).idxmin()
+    mais_barato = df.loc[menor_valor]
 
-    dados = {'uf': uf_selecionada, 'dados': [numero_registros]}
-
-    return jsonify(dados)
-
+    return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=mais_barato)
 
 if __name__ == '__main__':
 	app.run(debug=True)

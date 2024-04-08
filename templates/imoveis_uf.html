@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="max-w-4xl max-h-screen mx-auto px-4 pt-16 py-64">
+
+    <h1 class="text-5xl font-bold">Imóveis - {{ uf }}</h1>
+    <p class="py-6">Veja abaixo algumas informações sobre imóveis disponíveis no portal de venda de imóveis da Caixa Econômica Federal para esse estado.</p>
+    <p class="py-6">O imóvel mais barato disponível é um(a) {{ dados.Tipo_Imovel }} no valor de R$ {{ dados.Preco }}.</p>
+
+    <a href="/imoveis" class="btn btn-primary mt-4">Voltar</a>
+</div>
+
+{% endblock %}
