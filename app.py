@@ -86,17 +86,28 @@ def mostrar_imoveis():
 @app.route("/imoveis/<uf>")
 def mostrar_dados_uf(uf):
 
-    # Aqui você pode acessar a planilha e passar os dados para o template
     sheet = planilha.worksheet(uf)
     dados = sheet.get_all_values()
     df = pd.DataFrame(dados[1:], columns=dados[0])
 
-    df['Valor_Avaliacao'] = df['Valor_Avaliacao'].str.replace(',', '.').astype(float)
-    df['Preco'] = df['Preco'].str.replace(',', '.').astype(float)
-    menor_valor = df['Preco'].astype(float).idxmin()
-    mais_barato = df.loc[menor_valor]
+    # Lista de colunas para converter
+    colunas_para_converter = ['Preco', 'Valor_Avaliacao', 'Desconto', 'Area_Total', 'Area_Privativa', 'Area_Terreno', 'Latitude', 'Longitude']
 
-    return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=mais_barato)
+    for coluna in colunas_para_converter:
+        df[coluna] = df[coluna].str.replace(',', '.').astype(float)
+
+    menor_valor = df['Preco'].astype(float).idxmin()
+    maior_valor = df['Preco'].astype(float).idxmax()
+    maior_desconto = df['Desconto'].astype(float).idxmax()
+
+    dados = {
+        'mais_barato': df.loc[menor_valor],
+        'mais_caro': df.loc[maior_valor],
+        'mais_descontado': df.loc[maior_desconto],
+        'quantidade_imoveis': len(df)
+    }
+
+    return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=dados)
 
 if __name__ == '__main__':
 	app.run(debug=True)
