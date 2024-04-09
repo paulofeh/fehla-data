@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
-
+{% block title %}Imóveis Caixa | {{ titulo_site }} | {{ subtitulo_site }}{% endblock %}
 {% block content %}
 
-<div class="max-w-4xl max-h-screen mx-auto px-4 pt-16 py-64">
+<div class="max-w-4xl min-h-screen mx-auto px-4 pt-16 py-64">
 
     <h1 class="text-5xl font-bold">Imóveis - {{ uf }}</h1>
     <p class="py-6">Estão disponíveis {{ dados.quantidade_imoveis }} imóveis no portal de venda de imóveis da Caixa.</p>
@@ -12,23 +12,26 @@
   
         <div class="stat">
           <div class="stat-title">Preço mais baixo</div>
-          <div class="stat-value">{{ dados.mais_barato['Preco']}}</div>
-          <div class="stat-desc">valor em R$</div>
+          <div class="stat-value">{{ dados.mais_baratos[0]['Preco'] | currency}}</div>
+          <div class="stat-desc"><a href="{{ dados.mais_baratos[0]['Link_acesso'] }}" class="link-info">Link para o anúncio</a></div>
         </div>
         
         <div class="stat">
           <div class="stat-title">Preço mais alto</div>
-          <div class="stat-value">{{ "%.2f"|format(dados.mais_caro['Preco']) }}</div>
-          <div class="stat-desc">valor em R$</div>
+          <div class="stat-value">{{ dados.mais_caros[0]['Preco'] | currency }}</div>
+          <div class="stat-desc"><a href="{{ dados.mais_caros[0]['Link_acesso'] }}" class="link-info">Link para o anúncio</a></div>
         </div>
         
         <div class="stat">
           <div class="stat-title">Maior desconto</div>
-          <div class="stat-value">{{ dados.mais_descontado['Desconto']}}%</div>
-          <div class="stat-desc">sobre preço de avaliação</div>
+          <div class="stat-value">{{ "%.2f"|format(dados.mais_descontado['Desconto']) }}%</div>
+          <div class="stat-desc">sobre valor de avaliação</div>
+          <div class="stat-desc"><a href="{{ dados.mais_descontado['Link_acesso'] }}" class="link-info">Link para o anúncio</a></div>
         </div>
         
-      </div>
+    </div>
+
+    <div id="mapa" class="my-6">{{ mapa|safe }}</div>
 
     <a href="/imoveis" class="btn btn-primary mt-16">Voltar</a>
 

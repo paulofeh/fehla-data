@@ -1727,6 +1727,28 @@ details.collapse summary::-webkit-details-marker {
   text-align: inherit;
 }
 
+@supports (color:color-mix(in oklab,black,black)) {
+  @media (hover:hover) {
+    .link-success:hover {
+      color: color-mix(in oklab,var(--fallback-su,oklch(var(--su)/1)) 80%,black);
+    }
+
+    .link-info:hover {
+      color: color-mix(in oklab,var(--fallback-in,oklch(var(--in)/1)) 80%,black);
+    }
+  }
+}
+
+.link-success {
+  --tw-text-opacity: 1;
+  color: var(--fallback-su,oklch(var(--su)/var(--tw-text-opacity)));
+}
+
+.link-info {
+  --tw-text-opacity: 1;
+  color: var(--fallback-in,oklch(var(--in)/var(--tw-text-opacity)));
+}
+
 .link:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -2149,6 +2171,16 @@ details.collapse summary::-webkit-details-marker {
   margin-bottom: 2rem;
 }
 
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
 .mt-12 {
   margin-top: 3rem;
 }
@@ -2159,6 +2191,14 @@ details.collapse summary::-webkit-details-marker {
 
 .mt-16 {
   margin-top: 4rem;
+}
+
+.mb-16 {
+  margin-bottom: 4rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
 }
 
 .block {
@@ -2179,6 +2219,10 @@ details.collapse summary::-webkit-details-marker {
 
 .w-full {
   width: 100%;
+}
+
+.w-96 {
+  width: 24rem;
 }
 
 .max-w-4xl {
@@ -2203,6 +2247,10 @@ details.collapse summary::-webkit-details-marker {
 
 .list-disc {
   list-style-type: disc;
+}
+
+.grid-flow-row {
+  grid-auto-flow: row;
 }
 
 .flex-col {

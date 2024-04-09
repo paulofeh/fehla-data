@@ -5,6 +5,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 import pandas as pd
 import os
+import locale
+import folium
 
 # Credenciais e autenticação
 load_dotenv()
@@ -19,7 +21,6 @@ sheets_api = os.environ.get("SHEETS_API")
 planilha = api.open_by_key(sheets_api)
 
 # Variáveis a serem passadas para os templates
-estados = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
 
 # Dicionário de estados
 estados_dict = {
@@ -62,6 +63,13 @@ def inject_site_metadata():
         subtitulo_site="Portfolio de Jornalismo de Dados de Paulo Fehlauer"
     )
 
+# Configurar localidade para usar como formato de moeda brasileira
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
+@app.template_filter('currency')
+def currency_filter(value):
+    return locale.currency(value, grouping=True)
+
 @app.route("/")
 def home():
 	return render_template("home.html")
@@ -96,19 +104,45 @@ def mostrar_dados_uf(uf):
     for coluna in colunas_para_converter:
         df[coluna] = df[coluna].str.replace(',', '.').astype(float)
 
-    menor_valor = df['Preco'].astype(float).idxmin()
-    maior_valor = df['Preco'].astype(float).idxmax()
-    maior_desconto = df['Desconto'].astype(float).idxmax()
+    # Filtrar imóveis com Preco >= 100
+    df_filtrado = df[df['Preco'].astype(float) >= 100]
 
+   # Obter os 3 imóveis mais baratos e mais caros
+    mais_baratos = df_filtrado.nsmallest(3, 'Preco').to_dict('records')
+    mais_caros = df_filtrado.nlargest(3, 'Preco').to_dict('records')
+
+    # Obter o imóvel com o maior desconto
+    mais_descontado = df_filtrado.nlargest(1, 'Desconto').to_dict('records')[0]
+
+    # Processamento dos dados conforme acima
     dados = {
-        'mais_barato': df.loc[menor_valor],
-        'mais_caro': df.loc[maior_valor],
-        'mais_descontado': df.loc[maior_desconto],
+        'mais_baratos': mais_baratos,
+        'mais_caros': mais_caros,
+        'mais_descontado': mais_descontado,
         'quantidade_imoveis': len(df)
     }
 
-    return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=dados)
+    # Cria um mapa a partir dos dados de cada estado
+    # Remover pois tornou o carregamento da página muito lento
+    
+    latitude_inicial = df['Latitude'].mean()
+    longitude_inicial = df['Longitude'].mean()
+    m = folium.Map([latitude_inicial, longitude_inicial], zoom_start=7)
+
+    # Itere sobre as linhas do DataFrame
+    for index, row in df.iterrows():
+        folium.Marker(
+            location=[row['Latitude'], row['Longitude']],
+            tooltip=row['Endereco'],
+            popup=row['Descricao'],
+            icon=folium.Icon(color='red')
+        ).add_to(m)
+    
+    # Converter o mapa para HTML
+    mapa_html = m._repr_html_()
+
+    return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=dados, mapa=mapa_html)
+
 
 if __name__ == '__main__':
 	app.run(debug=True)
-    
