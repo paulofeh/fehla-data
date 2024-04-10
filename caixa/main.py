@@ -34,8 +34,8 @@ from dotenv import load_dotenv
 import pandas as pd
 
 # Bibliotecas locais
-from modules.planilhas import baixa_planilha, trata_planilha
-from modules.geoloc import processar_lotes
+from modules.planilhas import baixa_planilha, trata_planilha, calcula_stats, adiciona_stats
+#from modules.geoloc import processar_lotes
 
 # Credenciais e autenticação
 load_dotenv()
@@ -52,7 +52,7 @@ planilha = api.open_by_key(sheets_api)
 
 # Variáveis
 estados = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
-colunas = ['ID_imovel', 'UF', 'Cidade', 'Bairro', 'Endereco', 'Preco', 'Valor_Avaliacao', 'Desconto', 'Descricao', 'Modalidade_venda', 'Link_acesso', 'Tipo_Imovel', 'Area_Total', 'Area_Privativa', 'Area_Terreno','Data_Inclusao', 'Latitude', 'Longitude']
+colunas = ['ID_imovel', 'UF', 'Cidade', 'Bairro', 'Endereco', 'Preco', 'Valor_Avaliacao', 'Desconto', 'Descricao', 'Modalidade_venda', 'Link_acesso', 'Tipo_Imovel', 'Area_Total', 'Area_Privativa', 'Area_Terreno','Data_Inclusao']
 
 
 # Execução
@@ -68,6 +68,8 @@ print(f"Worksheet 'Arquivados' created successfully.")
 
 # Itera sobre os estados da lista
 for UF in estados:
+    # Aguarda 5 segundos para contornar limitações de uso da API
+    time.sleep(5)
     # Baixa a planilha de leilões da Caixa
     df_caixa = baixa_planilha(UF)
     if df_caixa is None:
@@ -82,10 +84,10 @@ for UF in estados:
         df_sheets = pd.DataFrame(columns=colunas)
         planilha.worksheet(UF).update([df_sheets.columns.values.tolist()] + df_sheets.values.tolist())
     else:
-        df_sheets = pd.DataFrame(df_sheets)
+        df_sheets = pd.DataFrame(df_sheets).fillna("")  # Substitui NaN por string vazia
 
-    # Trata os dados da planilha, limpando e organizando as colunas
-    df_caixa = trata_planilha(df_caixa)
+    # Trata os dados da planilha, limpando e padronizando as colunas
+    df_caixa = trata_planilha(df_caixa).fillna("")  # Substitui NaN por string vazia
 
     # Compara os dados da planilha com os dados do sheets (a partir do ID do imóvel)
     # Se um registro estiver na planilha mas não no sheets, adiciona a um dataframe Novos
@@ -96,6 +98,9 @@ for UF in estados:
     df_arquivados = df_sheets[~df_sheets['ID_imovel'].isin(df_caixa['ID_imovel'])]
     print(f"Registros arquivados encontrados para o estado {UF}: {len(df_arquivados)}")
 
+    
+    """
+    # Ocultado para implementação futura
     # Se o dataframe Novos não estiver vazio, busca as coordenadas geográficas dos imóveis
     if not df_novos.empty:
         # Cria uma cópia do DataFrame para evitar o aviso SettingWithCopyWarning
@@ -120,6 +125,8 @@ for UF in estados:
 
         # Remove a coluna temporária 'Endereco_Completo'
         df_novos = df_novos.drop(columns=['Endereco_Completo'])
+    """
+        
 
     # Salva os dataframes Novos e Arquivados no Google Sheets
     # Se não houver registros em df_novos nem em df_arquivados, não há a necessidade de atualizar o sheets
@@ -130,24 +137,42 @@ for UF in estados:
     # Se houver registros em df_novos, mas não em df_arquivados, basta adicionar os registros de df_novos ao final da planilha do estado
     elif not df_novos.empty and df_arquivados.empty:
         planilha.worksheet(UF).append_rows(df_novos.values.tolist())
+        df_sheets = pd.concat([df_sheets, df_novos], ignore_index=True)
+
+        # Calcula e adiciona estatísticas a partir do DataFrame de imóveis
+        # stats = calcula_stats(df_sheets)
+        # adiciona_stats(planilha, stats, UF)
+
         print(f"Dataframes atualizados para o estado {UF}.")
         continue
 
     # Se não houver registros em df_novos, mas houver em df_arquivados, devemos adicionar esses registros ao final da planilha 'Arquivados' , excluí-los de df_sheets e substituir a planilha respectiva no sheets
     elif df_novos.empty and not df_arquivados.empty:
-        planilha.worksheet('Arquivados').append_rows([df_arquivados.columns.values.tolist()] + df_arquivados.values.tolist())
+        planilha.worksheet('Arquivados').append_rows(df_arquivados.values.tolist())
         df_sheets = df_sheets[~df_sheets['ID_imovel'].isin(df_arquivados['ID_imovel'])]
         planilha.worksheet(UF).clear()
         planilha.worksheet(UF).update([df_sheets.columns.values.tolist()] + df_sheets.values.tolist())
+
+        # Calcula e adiciona estatísticas a partir do DataFrame de imóveis
+        # stats = calcula_stats(df_sheets)
+        # adiciona_stats(planilha, stats, UF)
+
         print(f"Dataframes atualizados para o estado {UF}.")
         continue
 
     # Se houver registros tanto em df_novos quanto em df_arquivados, devemos adicionar os registros de df_arquivados ao final da planilha 'Arquivados' , excluí-los de df_sheets, concatenar df_sheets com df_novos e substituir a planilha respectiva no sheets
     else:
-        planilha.worksheet('Arquivados').append_rows([df_arquivados.columns.values.tolist()] + df_arquivados.values.tolist())
+        planilha.worksheet('Arquivados').append_rows(df_arquivados.values.tolist())
         df_sheets = df_sheets[~df_sheets['ID_imovel'].isin(df_arquivados['ID_imovel'])]
         df_sheets = pd.concat([df_sheets, df_novos], ignore_index=True)
         planilha.worksheet(UF).clear()
         planilha.worksheet(UF).update([df_sheets.columns.values.tolist()] + df_sheets.values.tolist())
+
+        # Calcula e adiciona estatísticas a partir do DataFrame de imóveis
+        # stats = calcula_stats(df_sheets)
+        # adiciona_stats(planilha, stats, UF)
+
         print(f"Dataframes atualizados para o estado {UF}.")
         continue
+
+print("Execução concluída com sucesso.")

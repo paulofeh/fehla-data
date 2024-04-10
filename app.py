@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import os
 import locale
-import folium
+# import folium
 
 # Credenciais e autenticação
 load_dotenv()
@@ -20,7 +20,7 @@ api = gspread.authorize(conta)
 sheets_api = os.environ.get("SHEETS_API")
 planilha = api.open_by_key(sheets_api)
 
-# Variáveis a serem passadas para os templates
+# Variáveis e dados a serem passados para os templates
 
 # Dicionário de estados
 estados_dict = {
@@ -99,8 +99,7 @@ def mostrar_dados_uf(uf):
     df = pd.DataFrame(dados[1:], columns=dados[0])
 
     # Lista de colunas para converter
-    colunas_para_converter = ['Preco', 'Valor_Avaliacao', 'Desconto', 'Area_Total', 'Area_Privativa', 'Area_Terreno', 'Latitude', 'Longitude']
-
+    colunas_para_converter = ['Preco', 'Valor_Avaliacao', 'Desconto', 'Area_Total', 'Area_Privativa', 'Area_Terreno']
     for coluna in colunas_para_converter:
         df[coluna] = df[coluna].str.replace(',', '.').astype(float)
 
@@ -114,16 +113,39 @@ def mostrar_dados_uf(uf):
     # Obter o imóvel com o maior desconto
     mais_descontado = df_filtrado.nlargest(1, 'Desconto').to_dict('records')[0]
 
+    # Obter a quantidade de imóveis com desconto maior que zero
+    quantidade_desconto = df_filtrado[df_filtrado['Desconto'] > 0].shape[0]
+
+    # Obter o preço médio dos imóveis
+    preco_medio = df_filtrado['Preco'].mean().round(2)
+
+    # Tipo de imóvel mais comum
+    tipo_comum = df_filtrado['Tipo_Imovel'].mode()[0]
+
+    # Obtém a modalidade de venda mais comum
+    modalidade_comum = df_filtrado['Modalidade_venda'].mode()[0]
+
+    # Porcentagem de venda direta
+    # Soma as modalidades de Venda Direta Online e Venda Online
+    venda_direta = df_filtrado['Modalidade_venda'].str.contains('Venda Direta Online|Venda Online').sum()/len(df_filtrado)*100
+
     # Processamento dos dados conforme acima
     dados = {
         'mais_baratos': mais_baratos,
         'mais_caros': mais_caros,
         'mais_descontado': mais_descontado,
-        'quantidade_imoveis': len(df)
+        'quantidade_imoveis': len(df),
+        'quantidade_desconto': quantidade_desconto,
+        'preco_medio': preco_medio,
+        'modalidade': modalidade_comum,
+        'venda_direta': f'{venda_direta:.2f}%',
+        'tipo_comum': tipo_comum
     }
 
+
+    """
     # Cria um mapa a partir dos dados de cada estado
-    # Remover pois tornou o carregamento da página muito lento
+    # Removido pois tornou o carregamento da página muito lento
     
     latitude_inicial = df['Latitude'].mean()
     longitude_inicial = df['Longitude'].mean()
@@ -141,7 +163,12 @@ def mostrar_dados_uf(uf):
     # Converter o mapa para HTML
     mapa_html = m._repr_html_()
 
-    return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=dados, mapa=mapa_html)
+    """
+
+    return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=dados)
+
+
+
 
 
 if __name__ == '__main__':

@@ -80,3 +80,60 @@ def trata_planilha(df):
     df['Data_Inclusao'] = datetime.now().strftime('%Y-%m-%d')
 
     return df
+
+
+def calcula_stats(df):
+    """
+    Função para calcular estatísticas a partir de um DataFrame de imóveis.
+    Retorna um dicionário com as estatísticas calculadas.
+    Desenhada para ser utilizada em conjunto com a função adiciona_stats, aproveitando o processamento periódico das planilhas.
+    A ser implementado em versões futuras.
+    """
+
+    stats = {
+        'mais_baratos': df.nsmallest(3, 'Preco').to_dict('records'),
+        'mais_caros': df.nlargest(3, 'Preco').to_dict('records'),
+        'maior_desconto': df.nlargest(1, 'Desconto').to_dict('records')[0],
+        'preco_medio': df['Preco'].mean(),
+        'mediana_desconto': df['Desconto'].median(),
+        'total_imoveis': df.shape[0]
+    }
+    
+    # Calcula cidade com maior média de desconto
+    cidade_desconto = df.groupby('Cidade')['Desconto'].mean().idxmax()
+    stats['cidade_maior_media_desconto'] = cidade_desconto
+    stats['valor_media_desconto'] = df.groupby('Cidade')['Desconto'].mean().max()
+    
+    # Ranking de modalidades de venda por contagem (apenas para o cenário nacional)
+    if 'Modalidade_venda' in df.columns:
+        stats['ranking_modalidades'] = df['Modalidade_venda'].value_counts().to_dict()
+    
+    return stats
+
+
+def adiciona_stats(planilha, estatisticas, UF="Nacional"):
+    """
+    Função para adicionar estatísticas a uma planilha do Google Sheets.
+    Desenhada para aproveitar o processamento periódico das planilhas e reduzir o impacto na experiência do usuário.
+    A ser implementado em versões futuras.
+    """
+    sheet = planilha.worksheet('Stats')
+    
+    # Preparar dados para adicionar
+    dados_para_adicionar = [
+        [UF, "3 Imóveis Mais Baratos", ", ".join([str(imovel['ID_imovel']) for imovel in estatisticas['mais_baratos']])],
+        [UF, "3 Imóveis Mais Caros", ", ".join([str(imovel['ID_imovel']) for imovel in estatisticas['mais_caros']])],
+        [UF, "Imóvel com Maior Desconto", estatisticas['maior_desconto']['ID_imovel']],
+        [UF, "Preço Médio dos Imóveis", estatisticas['preco_medio']],
+        [UF, "Mediana do Desconto", estatisticas['mediana_desconto']],
+        [UF, "Cidade com Maior Média de Desconto", estatisticas['cidade_maior_media_desconto']],
+        [UF, "Valor da Maior Média de Desconto", estatisticas['valor_media_desconto']],
+        [UF, "Total de Imóveis Disponíveis", estatisticas['total_imoveis']]
+    ]
+    
+    if UF == "Nacional":
+        for modalidade, contagem in estatisticas['ranking_modalidades'].items():
+            dados_para_adicionar.append([UF, f"Modalidade: {modalidade}", contagem])
+    
+    # Adicionar os dados à aba 'Stats' em lote
+    sheet.append_rows(dados_para_adicionar, value_input_option='USER_ENTERED')

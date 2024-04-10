@@ -4,34 +4,82 @@
 
 <div class="max-w-4xl min-h-screen mx-auto px-4 pt-16 py-64">
 
-    <h1 class="text-5xl font-bold">Imóveis - {{ uf }}</h1>
-    <p class="py-6">Estão disponíveis {{ dados.quantidade_imoveis }} imóveis no portal de venda de imóveis da Caixa.</p>
-    <p class="py-6">Veja abaixo algumas informações.</p>
+    <h1 class="text-5xl font-bold">Imóveis Caixa: {{ uf }}</h1>
+    <p class="py-6">Esta página reúne informações estatísticas sobre imóveis disponíveis para venda neste estado. Os dados são obtidos do <a href="https://venda-imoveis.caixa.gov.br/" target="_blank" class="link-info">portal de imóveis da Caixa</a> e disponibilizados aqui a título meramente informativo.</p>
+    <p class="pb-12">Obtenha as planilhas completas <a href="https://venda-imoveis.caixa.gov.br/sistema/download-lista.asp" target="_blank" class="link-info">aqui</a>.</p>
 
-    <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
+    <h2 class="text-3xl font-bold pb-6">Resumo dos dados disponíveis</h2>
+    
+    <div class="stats stats-vertical lg:stats-horizontal shadow w-full mb-8">
   
         <div class="stat">
-          <div class="stat-title">Preço mais baixo</div>
-          <div class="stat-value">{{ dados.mais_baratos[0]['Preco'] | currency}}</div>
-          <div class="stat-desc"><a href="{{ dados.mais_baratos[0]['Link_acesso'] }}" class="link-info">Link para o anúncio</a></div>
+          <div class="stat-title">Imóveis disponíveis</div>
+          <div class="stat-value">{{ dados.quantidade_imoveis }}</div>
         </div>
         
         <div class="stat">
           <div class="stat-title">Preço mais alto</div>
           <div class="stat-value">{{ dados.mais_caros[0]['Preco'] | currency }}</div>
-          <div class="stat-desc"><a href="{{ dados.mais_caros[0]['Link_acesso'] }}" class="link-info">Link para o anúncio</a></div>
+          <div class="stat-desc"><a href="{{ dados.mais_caros[0]['Link_acesso'] }}" class="link-info" target="_blank">Link para o anúncio</a></div>
         </div>
-        
+
         <div class="stat">
-          <div class="stat-title">Maior desconto</div>
-          <div class="stat-value">{{ "%.2f"|format(dados.mais_descontado['Desconto']) }}%</div>
-          <div class="stat-desc">sobre valor de avaliação</div>
-          <div class="stat-desc"><a href="{{ dados.mais_descontado['Link_acesso'] }}" class="link-info">Link para o anúncio</a></div>
-        </div>
-        
+          <div class="stat-title">Preço mais baixo</div>
+          <div class="stat-value">{{ dados.mais_baratos[0]['Preco'] | currency}}</div>
+          <div class="stat-desc"><a href="{{ dados.mais_baratos[0]['Link_acesso'] }}" class="link-info" target="_blank">Link para o anúncio</a></div>
+        </div>    
+    
     </div>
 
+    <div class="stats stats-vertical lg:stats-horizontal shadow w-full mb-8">  
+  
+      <div class="stat">
+        <div class="stat-title">Preço médio</div>
+        <div class="stat-value">{{ dados.preco_medio | currency }}</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">Imóveis com desconto</div>
+        <div class="stat-value">{{ dados.quantidade_desconto }}</div>
+      </div>
+      
+      <div class="stat">
+        <div class="stat-title">Maior desconto</div>
+        <div class="stat-value">{{ "%.2f"|format(dados.mais_descontado['Desconto']) }}%</div>
+        <div class="stat-desc">sobre valor de avaliação</div>
+        <div class="stat-desc"><a href="{{ dados.mais_descontado['Link_acesso'] }}" class="link-info" target="_blank">Link para o anúncio</a></div>
+      </div>        
+    
+    </div>  
+
+    <div class="stats stats-vertical lg:stats-horizontal shadow w-full mb-8">  
+  
+      <div class="stat">
+        <div class="stat-title">Modalidade mais comum</div>
+        <div class="stat-value">{{ dados.modalidade }}</div>
+        <div class="stat-desc"><a href="https://www.caixa.gov.br/voce/habitacao/imoveis-venda/Paginas/default.aspx#wp-venda" class="link-info" target="_blank">Saiba mais</a></div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">% Venda Direta</div>
+        <div class="stat-value">{{ dados.venda_direta }}</div>
+        <div class="stat-desc">Imóveis em geral não arrematados nos leilões. <br />Ficam disponíveis para venda direta pelo menor preço.</div>
+      </div>
+
+    </div>
+
+    <div class="stats stats-vertical lg:stats-horizontal shadow w-full mb-8">  
+  
+      <div class="stat">
+        <div class="stat-title">Tipo de imóvel mais comum</div>
+        <div class="stat-value">{{ dados.tipo_comum }}</div>
+      </div>
+            
+    </div>
+
+    <!--  REMOVE O MAPA PARA ECONOMIZAR RECURSOS
     <div id="mapa" class="my-6">{{ mapa|safe }}</div>
+    -->
 
     <a href="/imoveis" class="btn btn-primary mt-16">Voltar</a>
 

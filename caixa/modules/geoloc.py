@@ -1,5 +1,6 @@
 """
 Funções para obter as coordenadas geográficas de um endereço
+Acabou não sendo utilizada no projeto final	por impactar muito no tempo de execução
 """
 
 from geopy import geocoders
