@@ -1,20 +1,50 @@
 # Portfólio de projetos em Jornalismo de Dados
 
-Aplicação Python, utilizando o framework Flask, que reúne um [portfólio de trabalhos](https://fehla-data.onrender.com/) realizados pelo autor no Master em Jornalismo de Dados, Automação e Data Storytelling do Insper.
+Aplicação Python utilizando o framework Flask, que apresenta um [portfólio de trabalhos](https://fehla-data.onrender.com/) realizados pelo autor no Master em Jornalismo de Dados, Automação e Data Storytelling do Insper.
 
-A aplicação está dividida em 3 canais principais:
+O site está organizado em 4 canais:
 
-1. Biografia resumida do autor
-2. Lista de trabalhos realizados
-3. Aplicação [Imóveis Caixa](https://fehla-data.onrender.com/imoveis) (detalhada abaixo)
+1. **Home**
+2. **Bio**: biografia resumida do autor
+3. **Projetos**: Lista de trabalhos realizados
+4. **Imóveis**: Aplicação [Imóveis Caixa](https://fehla-data.onrender.com/imoveis) (detalhada abaixo)
 
 O site foi implementado com a utilização dos frameworks Flask (Python) e Tailwind (CSS), além de componentes DaisyUI. Foi desenvolvido como trabalho final da disciplina "Algoritmos de Automação", ministrada por Álvaro Justen no primeiro trimestre de 2024.
 
 O deploy foi feito no Render e o site está disponível [aqui](https://fehla-data.onrender.com/).
 
+## Estrutura do projeto
+
+```
+.
+├── .gitignore
+├── LICENSE
+├── README.md
+├── app.py
+├── caixa
+│   ├── main.py
+│   └── modules
+│       ├── geoloc.py
+│       └── planilhas.py
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── requirements.txt
+├── static
+│   ├── css
+│   └── images
+├── tailwind.config.js
+└── templates
+```
+- `app.py`: rotas e funções do Flask
+- `caixa/`: funções para obtenção e tratamento de dados das planilhas
+- `static/css`: arquivos css compilados pelo Tailwind
+- `static/images`: imagens utilizadas
+- `templates/`: templates do frontend Flask
+
 ## O projeto "Imóveis Caixa"
 
-Trata-se de uma aplicação web que permite visualizar estatísticas de imóveis disponíveis para venda pela Caixa, filtradas por estado. Os dados incluem imóveis com os maiores e menores preços, maior desconto, preço médio dos imóveis, entre outras informações.
+Consiste em uma aplicação web que permite visualizar estatísticas de imóveis disponíveis para venda pela Caixa, filtradas por estado. Os dados incluem imóveis com os maiores e menores preços, maior desconto, preço médio dos imóveis, entre outras informações.
 
 ### Motivações
 
@@ -38,3 +68,16 @@ A mesma planilha serve de base de dados para o cálculo das estatísticas aprese
 As principais dificuldades enfrentadas referem-se à utilização das APIs do Google (Sheets e Maps), bem como limitações de processamento. Os limites de uso da API do Sheets foram contornados com a inclusão de tempos de espera entre as consultas, mas um dos recursos planejados previa a exibição de um mapa com todos os imóveis de cada estado, o que se mostrou inviável dada a demora no processamento em casos como São Paulo, onde o número de imóveis supera 5000. 
 
 Entre as possíveis melhorias, a principal dela talvez esteja relacionada à performance, já que muitos dos cálculos são feitos em tempo real, a partir da requisição do usuário. Isso poderia ser contornado com a implementação de uma lógica de cálculo periódico e alimentação de uma aba específica para as estatísticas na própria planilha. Outras melhorias incluem a implementação dos mapas, a filtragem por município e uma página com estatísticas nacionais.
+
+## Autor e contato
+
+O projeto foi desenvolvido por Paulo Fehlauer. 
+
+Entre em contato pelos canais abaixo:
+
+- [Portfolio web e audiovisual](https://fehla.xyz/)
+- [LinkedIn](https://www.linkedin.com/in/paulo-fehlauer/)
+- [Instagram](https://www.instagram.com/fehlauer/)
+
+## Licença
+O código deste projeto é distribuído sob uma licença MIT. Consulte o arquivo [LICENSE](LICENSE) para detalhes.
