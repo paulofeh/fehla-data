@@ -19,13 +19,13 @@
         
         <div class="stat">
           <div class="stat-title">Preço mais alto</div>
-          <div class="stat-value">{{ dados.mais_caros[0]['Preco'] | currency }}</div>
+          <div class="stat-value">{{ dados.mais_caro_valor }}</div>
           <div class="stat-desc"><a href="{{ dados.mais_caros[0]['Link_acesso'] }}" class="link-info" target="_blank">Link para o anúncio</a></div>
         </div>
 
         <div class="stat">
           <div class="stat-title">Preço mais baixo</div>
-          <div class="stat-value">{{ dados.mais_baratos[0]['Preco'] | currency}}</div>
+          <div class="stat-value">{{ dados.mais_barato_valor}}</div>
           <div class="stat-desc"><a href="{{ dados.mais_baratos[0]['Link_acesso'] }}" class="link-info" target="_blank">Link para o anúncio</a></div>
         </div>    
     
@@ -35,7 +35,7 @@
   
       <div class="stat">
         <div class="stat-title">Preço médio</div>
-        <div class="stat-value">{{ dados.preco_medio | currency }}</div>
+        <div class="stat-value">{{ dados.preco_medio }}</div>
       </div>
 
       <div class="stat">

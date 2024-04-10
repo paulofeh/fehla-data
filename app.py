@@ -5,7 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 import pandas as pd
 import os
-import locale
+from caixa.modules.planilhas import formata_moeda
 # import folium
 
 # Credenciais e autenticação
@@ -63,13 +63,6 @@ def inject_site_metadata():
         subtitulo_site="Portfolio de Jornalismo de Dados de Paulo Fehlauer"
     )
 
-# Configurar localidade para usar como formato de moeda brasileira
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-
-@app.template_filter('currency')
-def currency_filter(value):
-    return locale.currency(value, grouping=True)
-
 @app.route("/")
 def home():
 	return render_template("home.html")
@@ -109,6 +102,8 @@ def mostrar_dados_uf(uf):
    # Obter os 3 imóveis mais baratos e mais caros
     mais_baratos = df_filtrado.nsmallest(3, 'Preco').to_dict('records')
     mais_caros = df_filtrado.nlargest(3, 'Preco').to_dict('records')
+    mais_barato_valor = formata_moeda(df_filtrado['Preco'].min())
+    mais_caro_valor = formata_moeda(df_filtrado['Preco'].max())
 
     # Obter o imóvel com o maior desconto
     mais_descontado = df_filtrado.nlargest(1, 'Desconto').to_dict('records')[0]
@@ -118,6 +113,7 @@ def mostrar_dados_uf(uf):
 
     # Obter o preço médio dos imóveis
     preco_medio = df_filtrado['Preco'].mean().round(2)
+    preco_medio = formata_moeda(preco_medio)
 
     # Tipo de imóvel mais comum
     tipo_comum = df_filtrado['Tipo_Imovel'].mode()[0]
@@ -132,6 +128,8 @@ def mostrar_dados_uf(uf):
     # Processamento dos dados conforme acima
     dados = {
         'mais_baratos': mais_baratos,
+        'mais_barato_valor': mais_barato_valor,
+        'mais_caro_valor': mais_caro_valor,
         'mais_caros': mais_caros,
         'mais_descontado': mais_descontado,
         'quantidade_imoveis': len(df),

@@ -82,6 +82,20 @@ def trata_planilha(df):
     return df
 
 
+def formata_moeda(value):
+    """
+    Função para formatar um valor numérico como moeda brasileira.
+    """
+    
+    # Primeiro, formata o número com separador de milhares e duas casas decimais
+    formatted_value = "{:,.2f}".format(value)
+    # Em seguida, substitui o separador decimal padrão (ponto) por uma vírgula
+    # e o separador de milhar (vírgula) por ponto
+    formatted_value = formatted_value.replace(',', 'X').replace('.', ',').replace('X', '.')
+    # Adiciona o símbolo da moeda
+    return "R$ " + formatted_value
+
+
 def calcula_stats(df):
     """
     Função para calcular estatísticas a partir de um DataFrame de imóveis.
