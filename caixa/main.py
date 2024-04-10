@@ -23,7 +23,7 @@ O script acessa a página de leilões da Caixa, baixa a planilha de leilões dis
 3. O script deve ser executado periodicamente para manter as planilhas atualizadas
 """
 
-# Bibliotecas padrão
+# Bibliotecas nativas do Python
 import os
 import time
 
@@ -34,12 +34,11 @@ from dotenv import load_dotenv
 import pandas as pd
 
 # Bibliotecas locais
-from modules.planilhas import baixa_planilha, trata_planilha, calcula_stats, adiciona_stats
-#from modules.geoloc import processar_lotes
+from modules.planilhas import baixa_planilha, trata_planilha
+#from modules.geoloc import processar_lotes (ocultado para implementação futura)
 
 # Credenciais e autenticação
 load_dotenv()
-
 arquivo_credenciais = "imoveis-da-caixa-293ec7fa1219.json"
 conteudo_credenciais = os.environ.get("GSPREAD_CREDENTIALS")
 with open (arquivo_credenciais, "w") as f:
@@ -56,14 +55,16 @@ colunas = ['ID_imovel', 'UF', 'Cidade', 'Bairro', 'Endereco', 'Preco', 'Valor_Av
 
 
 # Execução
-# Cria no Sheets uma planilha para cada estado + Arquivados
+# Cria no Sheets uma planilha para cada estado + Arquivados + Stats
 """
 Executa a criação das planilhas no Google Sheets
 for UF in estados:
     worksheet = planilha.add_worksheet(title=UF, rows=100, cols=20)
-    print(f"Worksheet '{UF}' created successfully.")
+    print(f"Aba '{UF}' criada com sucesso.")
 worksheet = planilha.add_worksheet(title='Arquivados', rows=100, cols=20)
-print(f"Worksheet 'Arquivados' created successfully.")
+print(f"Aba 'Arquivados' criada com sucesso.")
+worksheet = planilha.add_worksheet(title='Stats', rows=100, cols=20)
+print(f"Aba 'Stats' criada com sucesso.")
 """
 
 # Itera sobre os estados da lista
@@ -84,7 +85,7 @@ for UF in estados:
         df_sheets = pd.DataFrame(columns=colunas)
         planilha.worksheet(UF).update([df_sheets.columns.values.tolist()] + df_sheets.values.tolist())
     else:
-        df_sheets = pd.DataFrame(df_sheets).fillna("")  # Substitui NaN por string vazia
+        df_sheets = pd.DataFrame(df_sheets).fillna("")  # Substitui NaN por string vazia para evitar erros
 
     # Trata os dados da planilha, limpando e padronizando as colunas
     df_caixa = trata_planilha(df_caixa).fillna("")  # Substitui NaN por string vazia
@@ -140,6 +141,7 @@ for UF in estados:
         df_sheets = pd.concat([df_sheets, df_novos], ignore_index=True)
 
         # Calcula e adiciona estatísticas a partir do DataFrame de imóveis
+        # Ocultado para implementação futura
         # stats = calcula_stats(df_sheets)
         # adiciona_stats(planilha, stats, UF)
 
@@ -154,6 +156,7 @@ for UF in estados:
         planilha.worksheet(UF).update([df_sheets.columns.values.tolist()] + df_sheets.values.tolist())
 
         # Calcula e adiciona estatísticas a partir do DataFrame de imóveis
+        # Ocultado para implementação futura
         # stats = calcula_stats(df_sheets)
         # adiciona_stats(planilha, stats, UF)
 
@@ -169,6 +172,7 @@ for UF in estados:
         planilha.worksheet(UF).update([df_sheets.columns.values.tolist()] + df_sheets.values.tolist())
 
         # Calcula e adiciona estatísticas a partir do DataFrame de imóveis
+        # Ocultado para implementação futura
         # stats = calcula_stats(df_sheets)
         # adiciona_stats(planilha, stats, UF)
 

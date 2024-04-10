@@ -1,16 +1,29 @@
-# Bibliotecas e configurações
+"""
+Aplicação web para exibição de um portfolio de projetos em jornalismo de dados
+Inclui aplicação para visualização de dados de imóveis da Caixa Econômica Federal
+Autor: Paulo Fehlauer
+Data: 2024-04-10
+Versão: 0.1
+Licença: MIT
+"""
+
+# Módulos nativos do Python
+import os
+
+# Bibliotecas de terceiros
 from flask import Flask, render_template, request, redirect, url_for
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 import pandas as pd
-import os
+# import folium (para futuras implementações de mapas interativos)
+
+# Bibliotecas locais
 from caixa.modules.planilhas import formata_moeda
-# import folium
+
 
 # Credenciais e autenticação
 load_dotenv()
-
 arquivo_credenciais = "imoveis-da-caixa-293ec7fa1219.json"
 conteudo_credenciais = os.environ.get("GSPREAD_CREDENTIALS")
 with open (arquivo_credenciais, "w") as f:
@@ -20,7 +33,6 @@ api = gspread.authorize(conta)
 sheets_api = os.environ.get("SHEETS_API")
 planilha = api.open_by_key(sheets_api)
 
-# Variáveis e dados a serem passados para os templates
 
 # Dicionário de estados
 estados_dict = {
@@ -53,9 +65,11 @@ estados_dict = {
     'TO': 'Tocantins'
 }
 
+
 # Definições e rotas do Flask
 app = Flask(__name__)
 
+# Injeção de contexto - padroniza os metadados do site
 @app.context_processor
 def inject_site_metadata():
     return dict(
@@ -79,43 +93,50 @@ def bio():
 def imoveis():
     return render_template("imoveis.html", estados=estados_dict.keys())
 
+# Rota para mostrar os imóveis de um estado
 @app.route("/mostrar_imoveis", methods=['POST'])
 def mostrar_imoveis():
     uf_selecionada = request.form.get('uf')
     return redirect(url_for('mostrar_dados_uf', uf=uf_selecionada))
 
+# Rota para mostrar os dados do estado selecionado
 @app.route("/imoveis/<uf>")
 def mostrar_dados_uf(uf):
 
+    # Obtém os dados da planilha e converte para DataFrame
     sheet = planilha.worksheet(uf)
     dados = sheet.get_all_values()
     df = pd.DataFrame(dados[1:], columns=dados[0])
 
+    # Limpeza e conversão de dados
     # Lista de colunas para converter
     colunas_para_converter = ['Preco', 'Valor_Avaliacao', 'Desconto', 'Area_Total', 'Area_Privativa', 'Area_Terreno']
     for coluna in colunas_para_converter:
         df[coluna] = df[coluna].str.replace(',', '.').astype(float)
 
     # Filtrar imóveis com Preco >= 100
+    # Exclui imóveis com erro de preenchimento no campo Preço
     df_filtrado = df[df['Preco'].astype(float) >= 100]
 
-   # Obter os 3 imóveis mais baratos e mais caros
+    # Dados para exibição
+    # Obtém os 3 imóveis mais baratos e mais caros, bem como seus preços
     mais_baratos = df_filtrado.nsmallest(3, 'Preco').to_dict('records')
     mais_caros = df_filtrado.nlargest(3, 'Preco').to_dict('records')
     mais_barato_valor = formata_moeda(df_filtrado['Preco'].min())
     mais_caro_valor = formata_moeda(df_filtrado['Preco'].max())
 
-    # Obter o imóvel com o maior desconto
+    # Obtém o imóvel com o maior desconto
     mais_descontado = df_filtrado.nlargest(1, 'Desconto').to_dict('records')[0]
 
-    # Obter a quantidade de imóveis com desconto maior que zero
+    # Obtém a quantidade de imóveis com desconto maior que zero
+    # Ignora casos em que o desconto é zero ou negativo
     quantidade_desconto = df_filtrado[df_filtrado['Desconto'] > 0].shape[0]
 
-    # Obter o preço médio dos imóveis
+    # Obtém o preço médio dos imóveis
     preco_medio = df_filtrado['Preco'].mean().round(2)
     preco_medio = formata_moeda(preco_medio)
 
-    # Tipo de imóvel mais comum
+    # Obtém o tipo de imóvel mais comum
     tipo_comum = df_filtrado['Tipo_Imovel'].mode()[0]
 
     # Obtém a modalidade de venda mais comum
@@ -125,7 +146,7 @@ def mostrar_dados_uf(uf):
     # Soma as modalidades de Venda Direta Online e Venda Online
     venda_direta = df_filtrado['Modalidade_venda'].str.contains('Venda Direta Online|Venda Online').sum()/len(df_filtrado)*100
 
-    # Processamento dos dados conforme acima
+    # Estrutura de dados para exibição
     dados = {
         'mais_baratos': mais_baratos,
         'mais_barato_valor': mais_barato_valor,
@@ -164,9 +185,6 @@ def mostrar_dados_uf(uf):
     """
 
     return render_template("imoveis_uf.html", uf=estados_dict[uf], dados=dados)
-
-
-
 
 
 if __name__ == '__main__':
