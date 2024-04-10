@@ -26,7 +26,9 @@ A segunda motivação é jornalística, já que os dados servem também como ter
 
 A Caixa disponibiliza um banco de dados público sobre imóveis usados de todo o Brasil (casas, apartamentos e terrenos aptos para uso), disponíveis para venda em diferentes modalidades. Os imóveis listados são de propriedade da Caixa, em geral provenientes de execuções de garantias de contratos de financiamento, e podem ser vendidos com descontos consideráveis em relação aos seus valores de mercado.
 
-Este projeto recupera periodicamente os CSVs disponibilizados para cada estado, trata os seus dados e consolida-os em uma planilha do Google Sheets, permitindo consultas detalhadas. A mesma planilha serve de base de dados para o cálculo das estatísticas apresentadas na aplicação Flask, como imóveis mais baratos e mais caros, maiores descontos, preços médios e modalidades de venda mais comuns para cada UF.
+Este projeto recupera periodicamente os CSVs disponibilizados para cada estado, trata os seus dados e consolida-os em uma planilha do Google Sheets, permitindo consultas detalhadas. A lógica de atualização periódica da planilha prevê ainda a comparação com os dados já cadastrados, realizando a inclusão e o arquivamento de registros conforme necessário, de forma a deixar a planilha principal sempre sincronizada com a da Caixa, mas mantendo um histórico de registros arquivados. 
+
+A mesma planilha serve de base de dados para o cálculo das estatísticas apresentadas na aplicação Flask, como imóveis mais baratos e mais caros, maiores descontos, preços médios e modalidades de venda mais comuns para cada UF.
 
 - [Fonte dos dados](https://venda-imoveis.caixa.gov.br/sistema/download-lista.asp)
 - [Planilha atualizada](https://docs.google.com/spreadsheets/d/1GC_cPnLsJ2W5Jvv1aMmT46rFHbZbfaAqusq4fdz1B5Y/edit?usp=sharing)
